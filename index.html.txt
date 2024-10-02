@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SantaClauseMacros Hub</title>
+    <style>
+        body {
+            background-color: #0a2a3a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .logo {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+        }
+        .macro-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #c41e3a;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #a41e3a;
+        }
+        .version-info {
+            font-size: 0.9em;
+            color: #88cc88;
+            margin-top: 10px;
+        }
+        #update-status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .social-buttons {
+            margin-top: 30px;
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        .social-btn:hover {
+            opacity: 0.8;
+        }
+        .social-btn svg {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+        .youtube-btn { background-color: #FF0000; }
+        .discord-btn { background-color: #7289DA; }
+        #secret-section {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="logo" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="600" height="400" fill="#0a2a3a"/>
+            
+            <!-- Laptop Base -->
+            <path d="M100,300 L500,300 L520,320 L80,320 Z" fill="#444"/>
+            <rect x="85" y="295" width="430" height="5" fill="#333"/>
+            
+            <!-- Laptop Screen -->
+            <rect x="100" y="50" width="400" height="250" rx="10" ry="10" fill="#1e392a"/>
+            
+            <!-- Code on screen -->
+            <text x="120" y="80" font-family="Courier, monospace" font-size="14" fill="#88cc88">
+                <tspan x="120" dy="0">1. function SantaClauseMacro() {</tspan>
+                <tspan x="120" dy="20">2.   while(true) {</tspan>
+                <tspan x="120" dy="20">3.     checkGifts();</tspan>
+                <tspan x="120" dy="20">4.     claimRewards();</tspan>
+                <tspan x="120" dy="20">5.     sleep(5000);</tspan>
+                <tspan x="120" dy="20">6.   }</tspan>
+                <tspan x="120" dy="20">7. }</tspan>
+            </text>
+            
+            <!-- Run Macro Button -->
+            <g id="run-macro-btn" cursor="pointer">
+                <rect x="120" y="260" width="100" height="30" rx="15" ry="15" fill="#c41e3a"/>
+                <text x="170" y="280" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">Run Macro</text>
+            </g>
+            
+            <!-- SantaClauseMacros Text -->
+            <text x="300" y="350" font-family="Arial Black, sans-serif" font-size="24" fill="#f0f0f0" text-anchor="middle">SantaClauseMacros</text>
+        </svg>
+
+        <h1>Welcome to SantaClauseMacros Hub</h1>
+
+        <div class="macro-section">
+            <h2>Macro 1: AFK Room/Claim Gifts</h2>
+            <p>Automate your AFK Room and gift claiming process. Features multi-account support!</p>
+            <a href="#" class="btn" onclick="checkForUpdates('macro1')">Download Macro 1</a>
+            <div class="version-info" id="macro1-version">Current Version: 1.0</div>
+        </div>
+
+        <div class="macro-section">
+            <h2>Macro 2: Coming Soon</h2>
+            <p>We're crafting something magical! Stay tuned for our next jolly macro.</p>
+        </div>
+
+        <div id="update-status"></div>
+
+        <div class="social-buttons">
+            <a href="https://www.youtube.com/@Santa_ClauseYT" target="_blank" class="social-btn youtube-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                YouTube
+            </a>
+            <a href="https://discord.gg/dEWYVN5vbV" target="_blank" class="social-btn discord-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                </svg>
+                Discord
+            </a>
+        </div>
+
+        <div id="secret-section">
+            <h2>Secret Macro Unlocked!</h2>
+            <p>Congratulations! You've discovered the hidden Christmas gift finder macro.</p>
+            <a href="#" class="btn" onclick="alert('Secret macro activated!')">Activate Secret Macro</a>
+        </div>
+    </div>
+
+    <script>
+        function checkForUpdates(macroName) {
+            const updateStatus = document.getElementById('update-status');
+            updateStatus.textContent = 'Checking for updates...';
+            
+            setTimeout(() => {
+                const updateAvailable = Math.random() < 0.5;
+                const versionSpan = document.getElementById(`${macroName}-version`);
+                
+                if (updateAvailable) {
+                    updateStatus.textContent = `Update available for ${macroName}. Downloading...`;
+                    setTimeout(() => {
+                        updateStatus.textContent = `${macroName} updated successfully!`;
+                        const newVersion = (parseFloat(versionSpan.textContent.split(': ')[1]) + 0.1).toFixed(1);
+                        versionSpan.textContent = `Current Version: ${newVersion}`;
+                    }, 2000);
+                } else {
+                    updateStatus.textContent = `${macroName} is up to date.`;
+                }
+            }, 1000);
+        }
+
+        const runMacroBtn = document.getElementById('run-macro-btn');
+        const secretSection = document.getElementById('secret-section');
+
+        runMacroBtn.addEventListener('click', () => {
+            secretSection.style.display = 'block';
+            runMacroBtn.querySelector('text').textContent = 'Running...';
+        });
+
+        runMacroBtn.addEventListener('mouseover', () => {
+            runMacroBtn.querySelector('rect').setAttribute('fill', '#e41e3a');
+        });
+
+        runMacroBtn.addEventListener('mouseout', () => {
+            runMacroBtn.querySelector('rect').setAttribute('fill', '#c41e3a');
+        });
+    </script>
+</body>
+</html>
