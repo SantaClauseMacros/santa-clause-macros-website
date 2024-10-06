@@ -93,6 +93,25 @@
             padding: 20px;
             margin-top: 20px;
         }
+        .faq-item, .news-item, .testimonial {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .testimonial cite {
+            display: block;
+            text-align: right;
+            font-style: italic;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -149,6 +168,61 @@
             <p>We're crafting something magical! Stay tuned for our next jolly macro.</p>
         </div>
 
+        <div class="macro-section">
+            <h2>How to Use Our Macros</h2>
+            <ol>
+                <li>Download and install AutoHotkey v2 from the link above.</li>
+                <li>Download the desired macro from our website.</li>
+                <li>Right-click the downloaded .ahk file and select "Run Script".</li>
+                <li>Open your Roblox game.</li>
+                <li>Press the hotkey specified in the macro description to activate it.</li>
+                <li>Enjoy the automated features!</li>
+            </ol>
+            <p>For more detailed instructions, check our full guide [link to full guide].</p>
+        </div>
+
+        <div class="macro-section">
+            <h2>What Our Users Say</h2>
+            <div class="testimonial">
+                <p>"These macros have saved me so much time in-game!"</p>
+                - Happy User123
+            </div>
+            <div class="testimonial">
+                <p>"Easy to use and very effective. Highly recommend!"</p>
+                - GameMaster456
+            </div>
+        </div>
+
+        <div class="macro-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>Q: Is it safe to use these macros?</h3>
+                <p>A: While our macros are designed to be safe, always use them responsibly and in accordance with game rules.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Q: How do I install the macro?</h3>
+                <p>A: Download AutoHotkey v2, then download our macro file and run it with AutoHotkey.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Q: Will this work with all Roblox games?</h3>
+                <p>A: Our macros are designed for specific games. Check the description for compatibility.</p>
+            </div>
+        </div>
+
+        <div class="macro-section">
+            <h2>Latest News</h2>
+            <div class="news-item">
+                <h3>New Macro Released!</h3>
+                <p>Check out our latest macro for enhanced gameplay. [Read more]</p>
+                <small>Posted on: June 1, 2023</small>
+            </div>
+            <div class="news-item">
+                <h3>Website Update</h3>
+                <p>We've added new features to our website. Explore them now! [Read more]</p>
+                <small>Posted on: May 15, 2023</small>
+            </div>
+        </div>
+
         <div id="update-status"></div>
 
         <div class="social-buttons">
@@ -170,6 +244,29 @@
             <h2>Secret Macro Unlocked!</h2>
             <p>Congratulations! You've discovered the hidden Christmas gift finder macro.</p>
             <a href="#" class="btn" onclick="alert('Secret macro activated!')">Activate Secret Macro</a>
+        </div>
+
+        <div class="macro-section">
+            <h2>Contact Us</h2>
+            <form id="contact-form">
+                <input type="text" name="name" placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- [Previous head content remains the same] -->
+</head>
+<body>
+    <div class="container">
+        <!-- [Previous content remains the same up to the social buttons] -->
+
+        <div class="macro-section">
+            <h2>Contact Us</h2>
+            <form id="contact-form">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" placeholder="Your Message" required></textarea>
+                <button type="submit" class="btn">Send Message</button>
+            </form>
         </div>
     </div>
 
@@ -209,6 +306,13 @@
 
         runMacroBtn.addEventListener('mouseout', () => {
             runMacroBtn.querySelector('rect').setAttribute('fill', '#c41e3a');
+        });
+
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Here you would typically send the form data to a server
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
         });
     </script>
 </body>
