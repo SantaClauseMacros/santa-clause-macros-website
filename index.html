@@ -155,8 +155,10 @@
         </div>
 
         <div class="macro-section">
-            <h2>Macro 2: Coming Soon</h2>
-            <p>We're crafting something magical! Stay tuned for our next jolly macro.</p>
+            <h2>Macro 2: Game 4 Night 1 Hell Mode</h2>
+            <p>Dominate Game 4's Night 1 Hell Mode with this specialized macro. Enhance your gameplay and overcome challenging scenarios!</p>
+            <a href="Macro 2 Game 4 Night 1 Hell Mode.ahk" download onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro2'});" class="btn">Download Macro 2: Game 4 Night 1 Hell Mode</a>
+            <div class="version-info" id="macro2-version">Current Version: 1.0</div>
         </div>
 
         <div class="macro-section">
@@ -228,48 +230,14 @@
                 if (updateAvailable) {
                     updateStatus.textContent = `Update available for ${macroName}. Downloading...`;
                     setTimeout(() => {
-                        updateStatus.textContent = `${macroName} updated successfully!`;
-                        const newVersion = (parseFloat(versionSpan.textContent.split(': ')[1]) + 0.1).toFixed(1);
-                        versionSpan.textContent = `Current Version: ${newVersion}`;
-                    }, 2000);
-                } else {
-                    updateStatus.textContent = `${macroName} is up to date.`;
-                }
-            }, 1000);
-        }
-
-        const runMacroBtn = document.getElementById('run-macro-btn');
-        const secretSection = document.getElementById('secret-section');
-
-        runMacroBtn.addEventListener('click', () => {
-            secretSection.style.display = 'block';
-            runMacroBtn.querySelector('text').textContent = 'Running...';
-        });
-
-        runMacroBtn.addEventListener('mouseover', () => {
-            runMacroBtn.querySelector('rect').setAttribute('fill', '#e41e3a');
-        });
-
-        runMacroBtn.addEventListener
+                        updateStatus.textContent = `${macroName} updated successfully!
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- [Previous head content remains the same] -->
+    <!-- ... (head content remains unchanged) ... -->
 </head>
 <body>
-    <div class="container">
-        <!-- [Previous body content remains the same] -->
-
-        <div class="macro-section">
-            <h2>Contact Us</h2>
-            <form action="https://formspree.io/f/your_form_endpoint" method="POST">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="email" placeholder="Your Email" required>
-                <textarea name="message" placeholder="Your Message" required></textarea>
-                <button type="submit" class="btn">Send Message</button>
-            </form>
-        </div>
-    </div>
+    <!-- ... (body content remains unchanged) ... -->
 
     <script>
         function checkForUpdates(macroName) {
@@ -307,6 +275,20 @@
 
         runMacroBtn.addEventListener('mouseout', () => {
             runMacroBtn.querySelector('rect').setAttribute('fill', '#c41e3a');
+        });
+
+        // Add event listeners for both macros
+        document.querySelector('a[href="Macro 1 AFK Room-Claim Gifts.ahk"]').addEventListener('click', () => checkForUpdates('macro1'));
+        document.querySelector('a[href="Macro 2 Game 4 Night 1 Hell Mode.ahk"]').addEventListener('click', () => checkForUpdates('macro2'));
+
+        // Optional: Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
 </body>
