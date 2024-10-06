@@ -150,14 +150,18 @@
         <div class="macro-section">
             <h2>Macro 1: AFK Room/Claim Gifts</h2>
             <p>Automate your AFK Room and gift claiming process. Features multi-account support!</p>
-            <a href="Macro 1 AFK Room-Claim Gifts.ahk" download onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro1'});" class="btn">Download Macro 1: AFK Room/Claim Gifts</a>
+            <a href="./Macro 1 AFK Room-Claim Gifts.ahk" download="Macro 1 AFK Room-Claim Gifts.ahk" onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro1'});" class="btn">Download Macro 1: AFK Room/Claim Gifts</a>
             <div class="version-info" id="macro1-version">Current Version: 1.0</div>
         </div>
 
         <div class="macro-section">
             <h2>Macro 2: Game 4 Night 1 Hell Mode</h2>
             <p>Dominate Game 4's Night 1 Hell Mode with this specialized macro. Enhance your gameplay and overcome challenging scenarios!</p>
-            <a href="Macro 2 Game 4 Night 1 Hell Mode.ahk" download onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro2'});" class="btn">Download Macro 2: Game 4 Night 1 Hell Mode</a>
+            <ul>
+                <li>Press Ctrl+Alt+H to start/stop the macro</li>
+                <li>Press Ctrl+Alt+Q to completely exit the script</li>
+            </ul>
+            <a href="./Macro 2 Game 4 Night 1 Hell Mode.ahk" download="Macro 2 Game 4 Night 1 Hell Mode.ahk" onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro2'});" class="btn">Download Macro 2: Game 4 Night 1 Hell Mode</a>
             <div class="version-info" id="macro2-version">Current Version: 1.0</div>
         </div>
 
@@ -221,23 +225,14 @@
     <script>
         function checkForUpdates(macroName) {
             const updateStatus = document.getElementById('update-status');
-            updateStatus.textContent = 'Checking for updates...';
-            
-            setTimeout(() => {
-                const updateAvailable = Math.random() < 0.5;
-                const versionSpan = document.getElementById(`${macroName}-version`);
-                
-                if (updateAvailable) {
-                    updateStatus.textContent = `Update available for ${macroName}. Downloading...`;
-                    setTimeout(() => {
-                        updateStatus.textContent = `${macroName} updated successfully!
+            updateStatus.textContent =
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... (head content remains unchanged) ... -->
+    <!-- ... (previous head content remains unchanged) ... -->
 </head>
 <body>
-    <!-- ... (body content remains unchanged) ... -->
+    <!-- ... (previous body content remains unchanged) ... -->
 
     <script>
         function checkForUpdates(macroName) {
@@ -278,8 +273,8 @@
         });
 
         // Add event listeners for both macros
-        document.querySelector('a[href="Macro 1 AFK Room-Claim Gifts.ahk"]').addEventListener('click', () => checkForUpdates('macro1'));
-        document.querySelector('a[href="Macro 2 Game 4 Night 1 Hell Mode.ahk"]').addEventListener('click', () => checkForUpdates('macro2'));
+        document.querySelector('a[href="./Macro 1 AFK Room-Claim Gifts.ahk"]').addEventListener('click', () => checkForUpdates('macro1'));
+        document.querySelector('a[href="./Macro 2 Game 4 Night 1 Hell Mode.ahk"]').addEventListener('click', () => checkForUpdates('macro2'));
 
         // Optional: Add smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
