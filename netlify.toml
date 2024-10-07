@@ -1,2 +1,20 @@
 [build]
   publish = "."
+
+[[redirects]]
+  from = "/Macro*1*AFK*Room-Claim*Gifts.ahk"
+  to = "/Macro1.ahk"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/Macro*2*Game*4*Night*1*Hell*Mode.ahk"
+  to = "/Macro2.ahk"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*.ahk"
+  [headers.values]
+    Content-Type = "text/plain"
+    Content-Disposition = "attachment"
