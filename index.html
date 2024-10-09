@@ -116,10 +116,19 @@
             margin: 10px 0;
             border: 1px solid #ffeeba;
         }
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #signup-section {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="#signup-section" class="btn top-right" id="signup-btn">Sign Up</a>
         <svg class="logo" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
             <!-- Background -->
             <rect width="600" height="400" fill="#0a2a3a"/>
@@ -259,6 +268,16 @@
                 <button type="submit" class="btn">Send Message</button>
             </form>
         </div>
+
+        <div id="signup-section" class="macro-section">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -312,6 +331,25 @@
                     behavior: 'smooth'
                 });
             });
+        });
+
+        // Sign up form functionality
+        const signupForm = document.getElementById('signup-form');
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            // Here you would typically send this data to your server
+            console.log('Sign up submitted:', { username, email, password });
+            alert('Sign up successful! (This is a demo)');
+        });
+
+        // Show/hide signup section
+        const signupBtn = document.getElementById('signup-btn');
+        const signupSection = document.getElementById('signup-section');
+        signupBtn.addEventListener('click', () => {
+            signupSection.style.display = signupSection.style.display === 'none' ? 'block' : 'none';
         });
     </script>
 </body>
