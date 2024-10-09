@@ -5,7 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - SantaClauseMacros Hub</title>
     <style>
-        /* Copy the styles from your login.html, adjusting as needed */
+        body {
+            background-color: #0a2a3a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        h1 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #f0f0f0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #c41e3a;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #a41e3a;
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +71,22 @@
     </div>
 
     <script>
-        // Add your signup logic here
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var username = document.getElementById('username').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            
+            // This is a mock signup. In a real application, you'd send this data to a server for account creation.
+            if (username && email && password) {
+                // Successful signup
+                alert('Account created successfully! You can now log in.');
+                window.location.href = 'login.html'; // Redirect to the login page
+            } else {
+                // Failed signup
+                document.getElementById('error-message').textContent = 'Please fill in all fields';
+            }
+        });
     </script>
 </body>
 </html>
