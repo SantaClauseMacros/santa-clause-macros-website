@@ -1,17 +1,21 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 
 ; Initialize variables
 windows := []
 isRunning := false
 isPaused := false
 currentMode := "Dark"  ; Set default to Dark mode
-afkDuration := 10  ; 10 seconds for testing (in seconds)
+afkDuration := 7200  ; 2 hours in seconds (2 * 60 * 60 = 7200)
 
 ; Default hotkeys
 pauseHotkey := "F3"
 unpauseHotkey := "F3"  ; Same as pause for toggle functionality
 exitHotkey := "F6"
 failsafeHotkey := "F10"  ; Reintroduced failsafe hotkey
+
+; Default activity settings
+enableAFKRoom := true
+enableGiftClaiming := true
 
 ; Settings file
 settingsFile := A_ScriptDir "\settings.ini"
@@ -23,7 +27,7 @@ LoadSettings() {
         pauseHotkey := IniRead(settingsFile, "Hotkeys", "PauseKey", "F3")
         unpauseHotkey := pauseHotkey  ; Set unpause to same as pause
         exitHotkey := IniRead(settingsFile, "Hotkeys", "ExitKey", "F6")
-        failsafeHotkey := IniRead(settingsFile, "Hotkeys", "FailsafeKey", "F12")
+        failsafeHotkey := IniRead(settingsFile, "Hotkeys", "FailsafeKey", "F10")
         currentMode := IniRead(settingsFile, "Settings", "Theme", "Dark")
         enableAFKRoom := IniRead(settingsFile, "Activities", "AFKRoom", "1") = "1"
         enableGiftClaiming := IniRead(settingsFile, "Activities", "GiftClaiming", "1") = "1"
@@ -177,6 +181,7 @@ PerformAFK() {
         Sleep(1000)  ; Wait 1 second before the next movement
     }
 }
+
 ; Perform the "Claiming Gifts" activity
 PerformClaimingGifts() {
     global windows
@@ -313,7 +318,7 @@ saveSettingsButton.OnEvent("Click", (*) => SaveSettingsGUI())
 ; Activities Tab
 TabGui.UseTab(2)
 MyGui.Add("Text", "x10 y+20 Section", "Enable/Disable Activities:")
-afkRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vAFKRoom", "AFK Room (10 seconds)")
+afkRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vAFKRoom", "AFK Room (2 hours)")
 afkRoomCheckbox.Value := enableAFKRoom
 giftClaimingCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGiftClaiming", "Gift Claiming")
 giftClaimingCheckbox.Value := enableGiftClaiming
