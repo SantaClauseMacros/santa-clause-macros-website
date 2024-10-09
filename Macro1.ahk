@@ -93,14 +93,33 @@ RunMacro() {
     }
 }
 
+; New function to perform a spin and click action
+SpinAndClick(x, y) {
+    MouseMove(x, y)
+    Sleep(100)
+    
+    ; Perform a circular motion
+    radius := 10
+    steps := 10
+    Loop steps {
+        angle := (A_Index - 1) * (2 * 3.14159 / steps)
+        newX := x + radius * Cos(angle)
+        newY := y + radius * Sin(angle)
+        MouseMove(newX, newY)
+        Sleep(10)
+    }
+    
+    Click()
+    Sleep(100)
+}
+
 ; Perform the "Getting into AFK Room" activity
 PerformGettingIntoAFKRoom() {
     global windows
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        MouseMove(1636, 427)
-        Click()
+        SpinAndClick(1636, 427)
         Send("{Space down}")
         Send("{a down}")
         Send("{Space up}")
@@ -188,24 +207,19 @@ PerformClaimingGifts() {
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        MouseMove(1636, 427)
-        Click(2)
+        SpinAndClick(1636, 427)
         Sleep(1000)
-        MouseMove(949, 825)
-        Click(2)
+        SpinAndClick(949, 825)
         Sleep(500)
-        MouseMove(950, 808)
-        Click(2)
+        SpinAndClick(950, 808)
         Sleep(500)
-        MouseMove(949, 825)
-        Click(2)
+        SpinAndClick(949, 825)
         Sleep(15000)
         mousePositions := [[212, 930], [654, 447], [849, 447], [1052, 447], [1248, 447],
         [654, 620], [849, 620], [1052, 620], [1248, 620],
         [654, 807], [849, 807], [1052, 807], [1248, 807], [1331, 234]]
         for pos in mousePositions {
-            MouseMove(pos[1], pos[2])
-            Click()
+            SpinAndClick(pos[1], pos[2])
             Sleep(500)
         }
         Sleep(1000)
