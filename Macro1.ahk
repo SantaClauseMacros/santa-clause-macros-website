@@ -45,6 +45,17 @@ SaveSettings() {
     IniWrite(enableGiftClaiming ? "1" : "0", settingsFile, "Activities", "GiftClaiming")
 }
 
+; New function to resize Roblox windows
+ResizeRobloxWindows() {
+    global windows
+    for hwnd in windows {
+        WinActivate("ahk_id " hwnd)
+        WinMove(,, 800, 600, "ahk_id " hwnd)  ; Resize to 800x600
+        Sleep(100)
+    }
+    UpdateStatus("Roblox windows resized to 800x600")
+}
+
 ; Detect Roblox windows across all monitors
 DetectRobloxWindows() {
     global windows, statusText
@@ -62,6 +73,7 @@ DetectRobloxWindows() {
         UpdateStatus("No Roblox windows detected.")
     } else {
         UpdateStatus("Found " windows.Length " Roblox windows across all monitors.")
+        ResizeRobloxWindows()  ; Resize windows after detection
     }
 }
 
@@ -72,6 +84,8 @@ RunMacro() {
         UpdateStatus("No Roblox windows detected. Please detect windows first.")
         return
     }
+    
+    ResizeRobloxWindows()  ; Ensure windows are resized before starting the macro
     
     isRunning := true
     UpdateStatus("Running...")
@@ -99,7 +113,7 @@ SpinAndClick(x, y) {
     Sleep(100)
     
     ; Perform a circular motion
-    radius := 10
+    radius := 5  ; Reduced radius for smaller window
     steps := 10
     Loop steps {
         angle := (A_Index - 1) * (2 * 3.14159 / steps)
@@ -119,7 +133,7 @@ PerformGettingIntoAFKRoom() {
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(1636, 427)
+        SpinAndClick(750, 200)  ; Updated from 1636, 427
         Send("{Space down}")
         Send("{a down}")
         Send("{Space up}")
@@ -207,17 +221,19 @@ PerformClaimingGifts() {
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(1636, 427)
+        SpinAndClick(750, 200)  ; Updated from 1636, 427
         Sleep(1000)
-        SpinAndClick(949, 825)
+        SpinAndClick(435, 550)  ; Updated from 949, 825
         Sleep(500)
-        SpinAndClick(950, 808)
+        SpinAndClick(435, 540)  ; Updated from 950, 808
         Sleep(500)
-        SpinAndClick(949, 825)
+        SpinAndClick(435, 550)  ; Updated from 949, 825
         Sleep(15000)
-        mousePositions := [[212, 930], [654, 447], [849, 447], [1052, 447], [1248, 447],
-        [654, 620], [849, 620], [1052, 620], [1248, 620],
-        [654, 807], [849, 807], [1052, 807], [1248, 807], [1331, 234]]
+        mousePositions := [
+            [100, 550], [300, 250], [390, 250], [480, 250], [570, 250],
+            [300, 350], [390, 350], [480, 350], [570, 350],
+            [300, 450], [390, 450], [480, 450], [570, 450], [610, 100]
+        ]
         for pos in mousePositions {
             SpinAndClick(pos[1], pos[2])
             Sleep(500)
@@ -373,7 +389,8 @@ SaveSettingsGUI() {
     global pauseHotkey, exitHotkey, failsafeHotkey, afkRoomCheckbox, giftClaimingCheckbox
     pauseHotkey := pauseEdit.Value
     exitHotkey := exitEdit.Value
-    failsafeHotkey := failsafeEdit.Value
+    failsafeHotkey := failsafeEdit.
+failsafeHotkey := failsafeEdit.Value
     enableAFKRoom := afkRoomCheckbox.Value
     enableGiftClaiming := giftClaimingCheckbox.Value
     SaveSettings()
