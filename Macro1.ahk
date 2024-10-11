@@ -6,6 +6,7 @@ global isRunning := false
 global currentMode := "Dark"  ; Set default to Dark mode
 global afkDuration := 7200  ; 2 hours in seconds (2 * 60 * 60 = 7200)
 global loopCount := 0
+global currentLoopProgress := 0
 
 ; Default hotkeys
 global reloadHotkey := "F5"
@@ -29,6 +30,8 @@ global reloadEdit := ""
 global exitEdit := ""
 global afkRoomCheckbox := ""
 global giftClaimingCheckbox := ""
+global logView := ""
+global detailedStatusText := ""
 
 ; Load settings from file
 LoadSettings() {
@@ -54,7 +57,8 @@ SaveSettings() {
 
 ; Function to log actions
 LogAction(action) {
-    FileAppend FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") " - " action "`n", logFile
+    FileAppend(FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . " - " . action . "`n", logFile)
+    UpdateLogView()  ; Update the log viewer whenever a new action is logged
 }
 
 ; Function to resize Roblox windows
@@ -94,7 +98,7 @@ DetectRobloxWindows() {
 
 ; Run the macro
 RunMacro() {
-    global isRunning, windows, enableAFKRoom, enableGiftClaiming, MyGui, loopCount
+    global isRunning, windows, enableAFKRoom, enableGiftClaiming, MyGui, loopCount, currentLoopProgress
     if (windows.Length = 0) {
         UpdateStatus("No Roblox windows detected. Please detect windows first.")
         LogAction("Attempted to run macro with no windows detected")
@@ -111,24 +115,39 @@ RunMacro() {
     MyGui.Minimize()
     
     while isRunning {
+        loopCount++
+        currentLoopProgress := 0
+        UpdateProgressDisplay()
+        
         if (enableAFKRoom) {
             PerformGettingIntoAFKRoom()
+            currentLoopProgress := 25
+            UpdateProgressDisplay()
+            
             PerformAFK()
+            currentLoopProgress := 50
+            UpdateProgressDisplay()
         }
-        KeepActive()
-        if (enableGiftClaiming)
-            PerformClaimingGifts()
         
-        loopCount++
-        UpdateLoopCounter()
-        LogAction("Completed loop " loopCount)
+        KeepActive()
+        currentLoopProgress := 75
+        UpdateProgressDisplay()
+        
+        if (enableGiftClaiming) {
+            PerformClaimingGifts()
+        }
+        
+        currentLoopProgress := 100
+        UpdateProgressDisplay()
+        LogAction("Completed loop " . loopCount)
     }
 }
 
-; Function to update loop counter display
-UpdateLoopCounter() {
-    global loopCount
-    ToolTip "Loops: " loopCount, A_ScreenWidth - 100, A_ScreenHeight - 30
+; Function to update progress display
+UpdateProgressDisplay() {
+    global loopCount, currentLoopProgress
+    progressText := "Loops: " . loopCount . " | Current Loop Progress: " . currentLoopProgress . "%"
+    ToolTip(progressText, A_ScreenWidth - 300, A_ScreenHeight - 30)
 }
 
 ; Function to perform a spin and click action
@@ -257,29 +276,32 @@ ExitScript(*) {
 
 ; Update status in the GUI
 UpdateStatus(status) {
-    global statusText
-    statusText.Value := "Status: " status
-    LogAction("Status update: " status)
+    global statusText, detailedStatusText
+    statusText.Value := "Status: " . status
+    detailedStatusText.Value := "Detailed Status:`n" . status
+    LogAction("Status update: " . status)
 }
 
 ; Style the GUI based on the current theme
 StyleGUI(guiObj) {
-    global currentMode, reloadEdit, exitEdit
+    global currentMode, reloadEdit, exitEdit, logView
     
     if (currentMode = "Dark") {
         guiObj.BackColor := "333333"
         guiObj.SetFont("cWhite")
         reloadEdit.Opt("+Background444444 cWhite")
         exitEdit.Opt("+Background444444 cWhite")
+        logView.Opt("+Background222222 cWhite")
     } else {
         guiObj.BackColor := "FFFFFF"
         guiObj.SetFont("cBlack")
-        reloadEdit.Opt("+Background444444 cBlack")
-        exitEdit.Opt("+Background444444 cBlack")
+        reloadEdit.Opt("+Backgrounddddddd cBlack")
+        exitEdit.Opt("+Backgrounddddddd cBlack")
+        logView.Opt("+Backgroundeeeeee cBlack")
     }
 
     for ctrl in [reloadEdit, exitEdit] {
-        ctrl.Opt("+Background444444")
+        ctrl.Opt("+Background" . (currentMode = "Dark" ? "444444" : "dddddd"))
         ctrl.SetFont("c" . (currentMode = "Dark" ? "White" : "Black"))
     }
 }
@@ -294,7 +316,7 @@ ToggleTheme(*) {
 
 ; GUI Setup
 MyGui := Gui("+AlwaysOnTop -Resize +ToolWindow")
-TabGui := MyGui.Add("Tab3", "w320 h470", ["Hotkeys", "Activities", "Recommendations", "Accessibility"])
+TabGui := MyGui.Add("Tab3", "w320 h470", ["Hotkeys", "Activities", "Log", "Detailed Status", "Accessibility"])
 
 ; Hotkeys Tab
 TabGui.UseTab(1)
@@ -329,12 +351,17 @@ afkRoomCheckbox.Value := enableAFKRoom
 giftClaimingCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGiftClaiming", "Gift Claiming")
 giftClaimingCheckbox.Value := enableGiftClaiming
 
-; Recommendations Tab
+; Log Tab
 TabGui.UseTab(3)
-recommendationLink := MyGui.Add("Link", "x10 y+20 w300", "<a href=`"https://forms.gle/your-google-form-id`">Submit Feedback or Suggestions</a>")
+MyGui.Add("Text", "x10 y+20 w300", "Macro Log:")
+logView := MyGui.Add("Edit", "x10 y+5 w300 h400 +ReadOnly +Multi +VScroll")
+
+; Detailed Status Tab
+TabGui.UseTab(4)
+detailedStatusText := MyGui.Add("Text", "x10 y+20 w300 h400", "Detailed Status: Waiting...")
 
 ; Accessibility Tab
-TabGui.UseTab(4)
+TabGui.UseTab(5)
 MyGui.Add("Text", "x10 y+20 Section", "Accessibility Settings")
 darkModeToggle := MyGui.Add("Checkbox", "x10 y+10 w300 vDarkMode", "Dark Mode")
 darkModeToggle.OnEvent("Click", ToggleTheme)
@@ -342,6 +369,27 @@ darkModeToggle.Value := (currentMode = "Dark")
 
 ; Show the GUI
 MyGui.Show("w340 h520")
+
+; Function to update the log viewer in the GUI
+UpdateLogView() {
+    global logView
+    if (FileExist(logFile)) {
+        logContent := FileRead(logFile)
+        logView.Value := logContent
+        logView.Opt("+Redraw")  ; Refresh the control
+        ; Scroll to the bottom of the log
+        SendMessage(0x115, 7, 0, logView)  ; WM_VSCROLL with SB_BOTTOM
+    }
+}
+
+; Function to periodically update the GUI
+UpdateGUI() {
+    UpdateLogView()
+    UpdateProgressDisplay()
+}
+
+; Set up a timer to update the GUI every second
+SetTimer(UpdateGUI, 1000)
 
 ; Setup hotkeys
 SetupHotkeys() {
