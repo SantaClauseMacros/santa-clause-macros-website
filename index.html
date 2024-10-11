@@ -111,7 +111,35 @@
 <body>
     <div class="container">
         <svg class="logo" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
-            <!-- SVG content remains unchanged -->
+            <!-- Background -->
+            <rect width="600" height="400" fill="#0a2a3a"/>
+            
+            <!-- Laptop Base -->
+            <path d="M100,300 L500,300 L520,320 L80,320 Z" fill="#444"/>
+            <rect x="85" y="295" width="430" height="5" fill="#333"/>
+            
+            <!-- Laptop Screen -->
+            <rect x="100" y="50" width="400" height="250" rx="10" ry="10" fill="#1e392a"/>
+            
+            <!-- Code on screen -->
+            <text x="120" y="80" font-family="Courier, monospace" font-size="14" fill="#88cc88">
+                <tspan x="120" dy="0">1. function SantaClauseMacro() {</tspan>
+                <tspan x="120" dy="20">2.   while(true) {</tspan>
+                <tspan x="120" dy="20">3.     checkGifts();</tspan>
+                <tspan x="120" dy="20">4.     claimRewards();</tspan>
+                <tspan x="120" dy="20">5.     sleep(5000);</tspan>
+                <tspan x="120" dy="20">6.   }</tspan>
+                <tspan x="120" dy="20">7. }</tspan>
+            </text>
+            
+            <!-- Run Macro Button -->
+            <g id="run-macro-btn" cursor="pointer">
+                <rect x="120" y="260" width="100" height="30" rx="15" ry="15" fill="#c41e3a"/>
+                <text x="170" y="280" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">Run Macro</text>
+            </g>
+            
+            <!-- SantaClauseMacros Text -->
+            <text x="300" y="350" font-family="Arial Black, sans-serif" font-size="24" fill="#f0f0f0" text-anchor="middle">SantaClauseMacros</text>
         </svg>
 
         <h1>Welcome to SantaClauseMacros Hub</h1>
@@ -125,9 +153,9 @@
         <div class="macro-section">
             <h2>Macro 1: AFK Room/Claim Gifts</h2>
             <p>Automate your AFK Room and gift claiming process. Features multi-account support!</p>
-            <p>This is currently being tested on a different version. It may not work as intended. (For now)</p>
+            <p>This is being tested on a different version. It may not work correctly.</p>
             <a href="/Macro1.ahk" download="Macro 1 AFK Room-Claim Gifts.ahk" onclick="gtag('event', 'download', {'event_category': 'Macro', 'event_label': 'Macro1'});" class="btn">Download Macro 1: AFK Room/Claim Gifts</a>
-            <div class="version-info" id="macro1-version">Current Version: 1.01 (Beta)</div>
+            <div class="version-info" id="macro1-version">Current Version: 1.01</div>
         </div>
 
         <div class="macro-section">
@@ -199,7 +227,7 @@
             updateStatus.textContent = 'Checking for updates...';
             
             setTimeout(() => {
-                const updateAvailable = Math.random() < 0.5;
+const updateAvailable = Math.random() < 0.5;
                 const versionSpan = document.getElementById(`${macroName}-version`);
                 
                 if (updateAvailable) {
