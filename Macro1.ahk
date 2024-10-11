@@ -1,25 +1,34 @@
 #Requires AutoHotkey v2.0
 
 ; Initialize variables
-windows := []
-isRunning := false
-currentMode := "Dark"  ; Set default to Dark mode
-afkDuration := 7200  ; 2 hours in seconds (2 * 60 * 60 = 7200)
-loopCount := 0
+global windows := []
+global isRunning := false
+global currentMode := "Dark"  ; Set default to Dark mode
+global afkDuration := 7200  ; 2 hours in seconds (2 * 60 * 60 = 7200)
+global loopCount := 0
 
 ; Default hotkeys
-reloadHotkey := "F5"
-exitHotkey := "F6"
+global reloadHotkey := "F5"
+global exitHotkey := "F6"
 
 ; Default activity settings
-enableAFKRoom := true
-enableGiftClaiming := true
+global enableAFKRoom := true
+global enableGiftClaiming := true
 
 ; Settings file
-settingsFile := A_ScriptDir "\settings.ini"
+global settingsFile := A_ScriptDir "\settings.ini"
 
 ; Log file
-logFile := A_ScriptDir "\macro_log.txt"
+global logFile := A_ScriptDir "\macro_log.txt"
+
+; GUI variables
+global MyGui := ""
+global TabGui := ""
+global statusText := ""
+global reloadEdit := ""
+global exitEdit := ""
+global afkRoomCheckbox := ""
+global giftClaimingCheckbox := ""
 
 ; Load settings from file
 LoadSettings() {
@@ -122,7 +131,117 @@ UpdateLoopCounter() {
     ToolTip "Loops: " loopCount, A_ScreenWidth - 100, A_ScreenHeight - 30
 }
 
-; ... (other functions like SpinAndClick, PerformGettingIntoAFKRoom, PerformAFK, PerformClaimingGifts, and KeepActive remain the same)
+; Function to perform a spin and click action
+SpinAndClick(x, y) {
+    MouseMove(x, y)
+    Sleep(100)
+    
+    ; Perform a circular motion
+    radius := 5  ; Reduced radius for smaller window
+    steps := 10
+    Loop steps {
+        angle := (A_Index - 1) * (2 * 3.14159 / steps)
+        newX := x + radius * Cos(angle)
+        newY := y + radius * Sin(angle)
+        MouseMove(newX, newY)
+        Sleep(10)
+    }
+    
+    Click()
+    Sleep(100)
+}
+
+; Perform the "Getting into AFK Room" activity
+PerformGettingIntoAFKRoom() {
+    global windows
+    for hwnd in windows {
+        WinActivate("ahk_id " hwnd)
+        Sleep(500)
+        SpinAndClick(750, 200)  ; Updated coordinate
+        Send("{Space down}")
+        Send("{a down}")
+        Send("{Space up}")
+        Send("{a up}")
+        Sleep(100)
+        Send("{Tab}")
+        Sleep(100)
+        Send("{Shift}")
+        Send("{A down}")
+        Sleep(1000)
+        Send("{A up}")
+        Sleep(100)
+        Send("{s down}")
+        Sleep(500)
+        Send("{s up}")
+        Sleep(100)
+        ; ... (rest of the movement logic)
+    }
+    LogAction("Performed getting into AFK room")
+}
+
+; Perform AFK behavior for the specified duration
+PerformAFK() {
+    global windows, afkDuration
+    startTime := A_TickCount
+    endTime := startTime + (afkDuration * 1000)  ; Convert seconds to milliseconds
+    
+    while (A_TickCount < endTime) {
+        for hwnd in windows {
+            WinActivate("ahk_id " hwnd)
+            Send("{w down}")
+            Sleep(100)
+            Send("{w up}")
+            Sleep(100)
+            Send("{s down}")
+            Sleep(100)
+            Send("{s up}")
+        }
+        Sleep(1000)  ; Wait 1 second before the next movement
+    }
+    LogAction("Performed AFK behavior")
+}
+
+; Perform the "Claiming Gifts" activity
+PerformClaimingGifts() {
+    global windows
+    for hwnd in windows {
+        WinActivate("ahk_id " hwnd)
+        Sleep(500)
+        SpinAndClick(750, 200)  ; Updated coordinate
+        Sleep(1000)
+        SpinAndClick(435, 550)  ; Updated coordinate
+        Sleep(500)
+        SpinAndClick(435, 540)  ; Updated coordinate
+        Sleep(500)
+        SpinAndClick(435, 550)  ; Updated coordinate
+        Sleep(15000)
+        mousePositions := [
+            [100, 550], [300, 250], [390, 250], [480, 250], [570, 250],
+            [300, 350], [390, 350], [480, 350], [570, 350],
+            [300, 450], [390, 450], [480, 450], [570, 450], [610, 100]
+        ]
+        for pos in mousePositions {
+            SpinAndClick(pos[1], pos[2])
+            Sleep(500)
+        }
+        Sleep(1000)
+    }
+    LogAction("Performed claiming gifts")
+}
+
+; Keep the application active
+KeepActive() {
+    global windows
+    startTime := A_TickCount
+    while (A_TickCount - startTime < 10 * 1000) {
+        for hwnd in windows {
+            WinActivate("ahk_id " hwnd)
+            Send("{w}")
+        }
+        Sleep(1000)
+    }
+    LogAction("Kept application active")
+}
 
 ; Reload the macro
 ReloadMacro(*) {
@@ -143,7 +262,39 @@ UpdateStatus(status) {
     LogAction("Status update: " status)
 }
 
-; ... (GUI setup code remains largely the same, but update the hotkey labels)
+; Style the GUI based on the current theme
+StyleGUI(guiObj) {
+    global currentMode, reloadEdit, exitEdit
+    
+    if (currentMode = "Dark") {
+        guiObj.BackColor := "333333"
+        guiObj.SetFont("cWhite")
+        reloadEdit.Opt("+Background444444 cWhite")
+        exitEdit.Opt("+Background444444 cWhite")
+    } else {
+        guiObj.BackColor := "FFFFFF"
+        guiObj.SetFont("cBlack")
+        reloadEdit.Opt("+Background444444 cBlack")
+        exitEdit.Opt("+Background444444 cBlack")
+    }
+
+    for ctrl in [reloadEdit, exitEdit] {
+        ctrl.Opt("+Background444444")
+        ctrl.SetFont("c" . (currentMode = "Dark" ? "White" : "Black"))
+    }
+}
+
+; Toggle Dark/Light mode
+ToggleTheme(*) {
+    global currentMode
+    currentMode := (currentMode = "Dark") ? "Light" : "Dark"
+    SaveSettings()
+    StyleGUI(MyGui)
+}
+
+; GUI Setup
+MyGui := Gui("+AlwaysOnTop -Resize +ToolWindow")
+TabGui := MyGui.Add("Tab3", "w320 h470", ["Hotkeys", "Activities", "Recommendations", "Accessibility"])
 
 ; Hotkeys Tab
 TabGui.UseTab(1)
@@ -170,7 +321,27 @@ saveSettingsButton := MyGui.Add("Button", "x10 y+20 w300", "Save Settings")
 saveSettingsButton.OnEvent("Click", (*) => SaveSettingsGUI())
 saveSettingsButton.ToolTip := "Click to save current settings"
 
-; ... (rest of the GUI setup remains the same)
+; Activities Tab
+TabGui.UseTab(2)
+MyGui.Add("Text", "x10 y+20 Section", "Enable/Disable Activities:")
+afkRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vAFKRoom", "AFK Room (2 hours)")
+afkRoomCheckbox.Value := enableAFKRoom
+giftClaimingCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGiftClaiming", "Gift Claiming")
+giftClaimingCheckbox.Value := enableGiftClaiming
+
+; Recommendations Tab
+TabGui.UseTab(3)
+recommendationLink := MyGui.Add("Link", "x10 y+20 w300", "<a href=`"https://forms.gle/your-google-form-id`">Submit Feedback or Suggestions</a>")
+
+; Accessibility Tab
+TabGui.UseTab(4)
+MyGui.Add("Text", "x10 y+20 Section", "Accessibility Settings")
+darkModeToggle := MyGui.Add("Checkbox", "x10 y+10 w300 vDarkMode", "Dark Mode")
+darkModeToggle.OnEvent("Click", ToggleTheme)
+darkModeToggle.Value := (currentMode = "Dark")
+
+; Show the GUI
+MyGui.Show("w340 h520")
 
 ; Setup hotkeys
 SetupHotkeys() {
