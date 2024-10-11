@@ -176,7 +176,7 @@ PerformGettingIntoAFKRoom() {
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(750, 200)  ; Updated coordinate
+        SpinAndClick(366, 93)  ; Adjusted from 750, 200 for 800x600 window
         Send("{Space down}")
         Send("{a down}")
         Send("{Space up}")
@@ -266,18 +266,29 @@ PerformClaimingGifts() {
     for hwnd in windows {
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(750, 200)  ; Updated coordinate
+        SpinAndClick(366, 93)  ; Adjusted from 750, 200 for 800x600 window
         Sleep(1000)
-        SpinAndClick(435, 550)  ; Updated coordinate
+        SpinAndClick(213, 458)  ; Adjusted from 435, 550 for 800x600 window
         Sleep(500)
-        SpinAndClick(435, 540)  ; Updated coordinate
+        SpinAndClick(213, 450)  ; Adjusted from 435, 540 for 800x600 window
         Sleep(500)
-        SpinAndClick(435, 550)  ; Updated coordinate
+        SpinAndClick(213, 458)  ; Adjusted from 435, 550 for 800x600 window
         Sleep(15000)
         mousePositions := [
-            [100, 550], [300, 250], [390, 250], [480, 250], [570, 250],
-            [300, 350], [390, 350], [480, 350], [570, 350],
-            [300, 450], [390, 450], [480, 450], [570, 450], [610, 100]
+            [49, 458],  ; Adjusted from 100, 550
+            [147, 208], ; Adjusted from 300, 250
+            [191, 208], ; Adjusted from 390, 250
+            [235, 208], ; Adjusted from 480, 250
+            [279, 208], ; Adjusted from 570, 250
+            [147, 291], ; Adjusted from 300, 350
+            [191, 291], ; Adjusted from 390, 350
+            [235, 291], ; Adjusted from 480, 350
+            [279, 291], ; Adjusted from 570, 350
+            [147, 374], ; Adjusted from 300, 450
+            [191, 374], ; Adjusted from 390, 450
+            [235, 374], ; Adjusted from 480, 450
+            [279, 374], ; Adjusted from 570, 450
+            [298, 83]   ; Adjusted from 610, 100
         ]
         for pos in mousePositions {
             SpinAndClick(pos[1], pos[2])
