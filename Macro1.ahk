@@ -432,7 +432,6 @@ global afkRoomCheckbox := ""
 global giftClaimingCheckbox := ""
 global detailedStatusText := ""
 
-; Load settings from file
 LoadSettings() {
     global reloadHotkey, exitHotkey, currentMode, enableAFKRoom, enableGiftClaiming
     if FileExist(settingsFile) {
