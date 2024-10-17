@@ -30,6 +30,7 @@ global reloadEdit := ""
 global exitEdit := ""
 global afkRoomCheckbox := ""
 global giftClaimingCheckbox := ""
+global getIntoAFKRoomCheckbox := ""  ; New checkbox for getting into AFK room
 global detailedStatusText := ""
 
 ; Load settings from file
@@ -96,45 +97,45 @@ DetectRobloxWindows() {
 
 ; Run the macro
 RunMacro() {
-    global isRunning, windows, enableAFKRoom, enableGiftClaiming, MyGui, loopCount, currentLoopProgress
+    global isRunning, windows, enableAFKRoom, enableGiftClaiming, getIntoAFKRoomCheckbox, MyGui, loopCount, currentLoopProgress
     if (windows.Length = 0) {
         UpdateStatus("No Roblox windows detected. Please detect windows first.")
         LogAction("Attempted to run macro with no windows detected")
         return
     }
-    
+
     ResizeRobloxWindows()
-    
+
     isRunning := true
     UpdateStatus("Running...")
     LogAction("Started macro")
-    
+
     ; Minimize the GUI when the macro starts
     MyGui.Minimize()
-    
+
     while isRunning {
         loopCount++
         currentLoopProgress := 0
         UpdateProgressDisplay()
-        
-        if (enableAFKRoom) {
+
+        if (enableAFKRoom && getIntoAFKRoomCheckbox.Value) {
             PerformGettingIntoAFKRoom()
             currentLoopProgress := 25
             UpdateProgressDisplay()
-            
+
             PerformAFK()
             currentLoopProgress := 50
             UpdateProgressDisplay()
         }
-        
+
         KeepActive()
         currentLoopProgress := 75
         UpdateProgressDisplay()
-        
+
         if (enableGiftClaiming) {
             PerformClaimingGifts()
         }
-        
+
         currentLoopProgress := 100
         UpdateProgressDisplay()
         LogAction("Completed loop " . loopCount)
@@ -152,7 +153,7 @@ UpdateProgressDisplay() {
 SpinAndClick(x, y) {
     MouseMove(x, y)
     Sleep(100)
-    
+
     ; Perform a circular motion
     radius := 5  ; Reduced radius for smaller window
     steps := 10
@@ -163,7 +164,7 @@ SpinAndClick(x, y) {
         MouseMove(newX, newY)
         Sleep(10)
     }
-    
+
     Click()
     Sleep(100)
 }
@@ -241,7 +242,7 @@ PerformAFK() {
     global windows, afkDuration
     startTime := A_TickCount
     endTime := startTime + (afkDuration * 1000)  ; Convert seconds to milliseconds
-    
+
     while (A_TickCount < endTime) {
         for hwnd in windows {
             WinActivate("ahk_id " hwnd)
@@ -271,183 +272,105 @@ PerformClaimingGifts() {
         SpinAndClick(213, 450)  ; Adjusted from 435, 540 for 800x600 window
         Sleep(500)
         SpinAndClick(213, 458)  ; Adjusted from 435, 550 for 800x600 window
-        Sleep(15000)
-        mousePositions := [
-            [49, 458],  ; Adjusted from 100, 550
-            [147, 208], ; Adjusted from 300, 250
-            [191, 208], ; Adjusted from 390, 250
-            [235, 208], ; Adjusted from 480, 250
-            [279, 208], ; Adjusted from 570, 250
-            [147, 291], ; Adjusted from 300, 350
-            [191, 291], ; Adjusted from 390, 350
-            [235, 291], ; Adjusted from 480, 350
-            [279, 291], ; Adjusted from 570, 350
-            [147, 374], ; Adjusted from 300, 450
-            [191, 374], ; Adjusted from 390, 450
-            [235, 374], ; Adjusted from 480, 450
-            [279, 374], ; Adjusted from 570, 450
-            [298, 83]   ; Adjusted from 610, 100
-        ]
-        for pos in mousePositions {
-            SpinAndClick(pos[1], pos[2])
-            Sleep(500)
-        }
         Sleep(1000)
     }
     LogAction("Performed claiming gifts")
 }
 
-; Keep the application active
+; Function to keep the active window alive
 KeepActive() {
     global windows
-    startTime := A_TickCount
-    while (A_TickCount - startTime < 10 * 1000) {
-        for hwnd in windows {
-            WinActivate("ahk_id " hwnd)
-            Send("{w}")
-        }
-        Sleep(1000)
+    for hwnd in windows {
+        WinActivate("ahk_id " hwnd)
+        Sleep(100)
     }
-    LogAction("Kept application active")
 }
 
-; Reload the macro
-ReloadMacro(*) {
-    LogAction("Reloading macro")
-    Reload
+; Function to update the GUI status
+UpdateStatus(status) {
+    global statusText, MyGui
+    statusText := status
+    MyGui.StatusText.Text := statusText
 }
 
-; Exit the script
-ExitScript(*) {
-    LogAction("Exiting macro")
+; Create the main GUI
+CreateMainGUI() {
+    global MyGui, TabGui, afkRoomCheckbox, giftClaimingCheckbox, getIntoAFKRoomCheckbox
+
+    MyGui := Gui(, "Roblox Macro")
+    MyGui.SetFont("s10")
+    TabGui := MyGui.AddTabControl()
+
+    ; Hotkeys Tab
+    TabGui.UseTab(1)
+    MyGui.Add("Text", "x10 y+20 Section", "Hotkeys:")
+    MyGui.Add("Text", "x10 y+10", "Reload Hotkey:")
+    reloadEdit := MyGui.Add("Edit", "x150 y+10 w100 vReloadKey", reloadHotkey)
+    MyGui.Add("Text", "x10 y+40", "Exit Hotkey:")
+    exitEdit := MyGui.Add("Edit", "x150 y+40 w100 vExitKey", exitHotkey)
+
+    ; Activities Tab
+    TabGui.UseTab(2)
+    MyGui.Add("Text", "x10 y+20 Section", "Enable/Disable Activities:")
+    afkRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vAFKRoom", "AFK Room (2 hours)")
+    afkRoomCheckbox.Value := enableAFKRoom
+    getIntoAFKRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGetIntoAFKRoom", "Getting into AFK Room")
+    getIntoAFKRoomCheckbox.Value := true  ; Default to enabled
+    giftClaimingCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGiftClaiming", "Gift Claiming")
+    giftClaimingCheckbox.Value := enableGiftClaiming
+
+    ; Status Display
+    MyGui.Add("Text", "x10 y+10", "Status:")
+    MyGui.StatusText := MyGui.Add("Text", "x10 y+30 w400", statusText)
+
+    ; Start and Exit Buttons
+    MyGui.Add("Button", "x10 y+20 g=StartMacro", "Start Macro")
+    MyGui.Add("Button", "x120 y+20 g=StopMacro", "Stop Macro")
+    MyGui.Add("Button", "x240 y+20 g=DetectWindows", "Detect Windows")
+    MyGui.Add("Button", "x360 y+20 g=SaveSettings", "Save Settings")
+    
+    MyGui.OnEvent("Close", "OnClose")
+    MyGui.Show()
+}
+
+; Function to handle starting the macro
+StartMacro() {
+    global isRunning, enableAFKRoom, enableGiftClaiming, MyGui, getIntoAFKRoomCheckbox
+    if isRunning {
+        UpdateStatus("Macro is already running.")
+        return
+    }
+    
+    enableAFKRoom := afkRoomCheckbox.Value
+    enableGiftClaiming := giftClaimingCheckbox.Value
+    RunMacro()
+}
+
+; Function to handle stopping the macro
+StopMacro() {
+    global isRunning
+    isRunning := false
+    UpdateStatus("Macro stopped.")
+    LogAction("Macro stopped")
+}
+
+; Function to detect windows
+DetectWindows() {
+    DetectRobloxWindows()
+}
+
+; Function to save settings
+SaveSettings() {
+    SaveSettings()
+    UpdateStatus("Settings saved.")
+}
+
+; Function to handle GUI closure
+OnClose() {
+    StopMacro()
     ExitApp()
 }
 
-; Update status in the GUI
-UpdateStatus(status) {
-    global statusText, detailedStatusText
-    statusText.Value := "Status: " . status
-    detailedStatusText.Value := "Detailed Status:`n" . status
-    LogAction("Status update: " . status)
-}
-
-; Style the GUI based on the current theme
-StyleGUI(guiObj) {
-    global currentMode, reloadEdit, exitEdit
-    
-    if (currentMode = "Dark") {
-        guiObj.BackColor := "333333"
-        guiObj.SetFont("cWhite")
-        reloadEdit.Opt("+Background444444 cWhite")
-        exitEdit.Opt("+Background444444 cWhite")
-    } else {
-        guiObj.BackColor := "FFFFFF"
-        guiObj.SetFont("cBlack")
-        reloadEdit.Opt("+Backgrounddddddd cBlack")
-        exitEdit.Opt("+Backgrounddddddd cBlack")
-    }
-
-    for ctrl in [reloadEdit, exitEdit] {
-        ctrl.Opt("+Background" . (currentMode = "Dark" ? "444444" : "dddddd"))
-        ctrl.SetFont("c" . (currentMode = "Dark" ? "White" : "Black"))
-    }
-}
-
-; Toggle Dark/Light mode
-ToggleTheme(*) {
-    global currentMode
-    currentMode := (currentMode = "Dark") ? "Light" : "Dark"
-    SaveSettings()
-    StyleGUI(MyGui)
-}
-
-; GUI Setup
-MyGui := Gui("+AlwaysOnTop -Resize +ToolWindow")
-TabGui := MyGui.Add("Tab3", "w320 h470", ["Hotkeys", "Activities", "Detailed Status", "Accessibility"])
-
-; Hotkeys Tab
-TabGui.UseTab(1)
-
-MyGui.Add("Text", "x10 y+20 w100", "Reload Hotkey:")
-reloadEdit := MyGui.Add("Edit", "x+5 w200 h30 vReloadHotkey", reloadHotkey)
-reloadEdit.ToolTip := "Press this key to reload the macro"
-
-MyGui.Add("Text", "x10 y+10 w100", "Exit Hotkey:")
-exitEdit := MyGui.Add("Edit", "x+5 w200 h30 vExitHotkey", exitHotkey)
-exitEdit.ToolTip := "Press this key to exit the macro"
-
-detectButton := MyGui.Add("Button", "x10 y+20 w300", "Detect Roblox Windows")
-detectButton.OnEvent("Click", (*) => DetectRobloxWindows())
-detectButton.ToolTip := "Click to detect and resize Roblox windows"
-
-runButton := MyGui.Add("Button", "x10 y+10 w300", "Run Macro")
-runButton.OnEvent("Click", (*) => RunMacro())
-runButton.ToolTip := "Click to start the macro"
-
-statusText := MyGui.Add("Text", "x10 y+10 vStatus w300", "Status: Waiting...")
-
-saveSettingsButton := MyGui.Add("Button", "x10 y+20 w300", "Save Settings")
-saveSettingsButton.OnEvent("Click", (*) => SaveSettingsGUI())
-saveSettingsButton.ToolTip := "Click to save current settings"
-
-; Activities Tab
-TabGui.UseTab(2)
-MyGui.Add("Text", "x10 y+20 Section", "Enable/Disable Activities:")
-afkRoomCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vAFKRoom", "AFK Room (2 hours)")
-afkRoomCheckbox.Value := enableAFKRoom
-giftClaimingCheckbox := MyGui.Add("Checkbox", "xs y+10 w300 vGiftClaiming", "Gift Claiming")
-giftClaimingCheckbox.Value := enableGiftClaiming
-
-; Detailed Status Tab
-TabGui.UseTab(3)
-detailedStatusText := MyGui.Add("Text", "x10 y+20 w300 h400", "Detailed Status: Waiting...")
-
-; Accessibility Tab
-TabGui.UseTab(4)
-MyGui.Add("Text", "x10 y+20 Section", "Accessibility Settings")
-darkModeToggle := MyGui.Add("Checkbox", "x10 y+10 w300 vDarkMode", "Dark Mode")
-darkModeToggle.OnEvent("Click", ToggleTheme)
-darkModeToggle.Value := (currentMode = "Dark")
-
-; Show the GUI
-MyGui.Show("w340 h520")
-
-; Function to periodically update the GUI
-UpdateGUI() {
-    UpdateProgressDisplay()
-}
-
-; Set up a timer to update the GUI every second
-SetTimer(UpdateGUI, 1000)
-
-; Setup hotkeys
-SetupHotkeys() {
-    global reloadHotkey, exitHotkey
-    Hotkey(reloadHotkey, ReloadMacro)
-    Hotkey(exitHotkey, ExitScript)
-}
-
-; SaveSettingsGUI function
-SaveSettingsGUI() {
-    global reloadHotkey, exitHotkey, afkRoomCheckbox, giftClaimingCheckbox
-    reloadHotkey := reloadEdit.Value
-    exitHotkey := exitEdit.Value
-    enableAFKRoom := afkRoomCheckbox.Value
-    enableGiftClaiming := giftClaimingCheckbox.Value
-    SaveSettings()
-    SetupHotkeys()
-    UpdateStatus("Settings saved successfully.")
-    LogAction("Saved settings")
-}
-
-; Load settings
+; Load settings and create the GUI
 LoadSettings()
-
-; Set up hotkeys
-SetupHotkeys()
-
-; Apply initial styling
-StyleGUI(MyGui)
-
-; Keep the script running
-OnMessage(0x112, (*) => 0)  ; Prevent the script from exiting when the GUI is closed
+CreateMainGUI()
