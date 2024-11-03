@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 ; Macro 2: Game 4 Night 1 Hell mode
@@ -181,17 +181,15 @@ PerformAction() {
         Send("{1 up}")
         Sleep(250)
         SpinAndClick(1614, 818)
-        Loop 150 {
-            Send("{e down}")
-            Send("{e up}")
-            Sleep(100)
-        }
+        Sleep(250)
         Send("{s down}")
         Sleep(1250)
         Send("{s up}")
         Sleep(100)
         Send("{1 down}")
         Send("{1 up}")
+        SpinAndClick(1614, 818)
+        Sleep(100)
         SpinAndClick(1614, 818)
         Sleep(100)
         Loop 100 {
@@ -213,7 +211,7 @@ PerformAction() {
             Send("{e up}")
             Sleep(100)
         }
-        Sleep(10000)
+        Sleep(2000)
         Send("{s down}")
         Sleep(150)
         Send("{s up}")
