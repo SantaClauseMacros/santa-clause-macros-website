@@ -1,191 +1,90 @@
 #Requires AutoHotkey v2.0
 
-global windows := []
-global isRunning := false
-global currentMode := "Dark"
-global afkDuration := 7200
-global loopCount := 0
-global currentLoopProgress := 0
+; Initialize variables
+windows := []
+isRunning := false
+currentMode := "Dark"  ; Set default to Dark mode
+afkDuration := 7200  ; 2 hours in seconds
 
-global reloadHotkey := "F5"
-global exitHotkey := "F6"
+; Default hotkeys
+reloadHotkey := "F5"
+exitHotkey := "F6"
+failsafeHotkey := "F10"  ; Reintroduced failsafe hotkey
 
-global enableAFKRoom := true
-global enableGiftClaiming := true
-global getIntoAFKRoom := true
+; Settings file
+settingsFile := A_ScriptDir "\settings.ini"
 
-global settingsFile := A_ScriptDir "\settings.ini"
-global logFile := A_ScriptDir "\macro_log.txt"
-
-global MyGui := ""
-global TabGui := ""
-
-LoadSettings(*) {
-    global reloadHotkey, exitHotkey, currentMode, enableAFKRoom, enableGiftClaiming, getIntoAFKRoom, MyGui
-    try {
-        if FileExist(settingsFile) {
-            reloadHotkey := IniRead(settingsFile, "Hotkeys", "ReloadKey", "F5")
-            exitHotkey := IniRead(settingsFile, "Hotkeys", "ExitKey", "F6")
-            currentMode := IniRead(settingsFile, "Settings", "Theme", "Dark")
-            enableAFKRoom := IniRead(settingsFile, "Activities", "AFKRoom", "1") = "1"
-            enableGiftClaiming := IniRead(settingsFile, "Activities", "GiftClaiming", "1") = "1"
-            getIntoAFKRoom := IniRead(settingsFile, "Activities", "GetIntoAFKRoom", "1") = "1"
-        }
-    } catch as e {
-        LogAction("Error loading settings: " . e.Message)
-    }
-    
-    if IsObject(MyGui) {
-        UpdateGUIControls()
-    }
-    
-    UpdateStatus("Settings loaded.")
-}
-
-SaveAppSettings(*) {
-    global reloadHotkey, exitHotkey, currentMode, enableAFKRoom, enableGiftClaiming, getIntoAFKRoom, MyGui
-    try {
-        reloadHotkey := MyGui["ReloadEdit"].Value
-        exitHotkey := MyGui["ExitEdit"].Value
-        enableAFKRoom := MyGui["EnableAFKRoom"].Value
-        enableGiftClaiming := MyGui["EnableGiftClaiming"].Value
-        getIntoAFKRoom := MyGui["GetIntoAFKRoom"].Value
-
-        IniWrite(reloadHotkey, settingsFile, "Hotkeys", "ReloadKey")
-        IniWrite(exitHotkey, settingsFile, "Hotkeys", "ExitKey")
-        IniWrite(currentMode, settingsFile, "Settings", "Theme")
-        IniWrite(enableAFKRoom ? "1" : "0", settingsFile, "Activities", "AFKRoom")
-        IniWrite(enableGiftClaiming ? "1" : "0", settingsFile, "Activities", "GiftClaiming")
-        IniWrite(getIntoAFKRoom ? "1" : "0", settingsFile, "Activities", "GetIntoAFKRoom")
-        UpdateStatus("Settings saved successfully.")
-    } catch as e {
-        LogAction("Error saving settings: " . e.Message)
-        UpdateStatus("Error saving settings.")
+; Load settings from file
+LoadSettings() {
+    global reloadHotkey, exitHotkey, failsafeHotkey, currentMode
+    if FileExist(settingsFile) {
+        reloadHotkey := IniRead(settingsFile, "Hotkeys", "ReloadKey", "F5")
+        exitHotkey := IniRead(settingsFile, "Hotkeys", "ExitKey", "F6")
+        failsafeHotkey := IniRead(settingsFile, "Hotkeys", "FailsafeKey", "F10")
+        currentMode := IniRead(settingsFile, "Settings", "Theme", "Dark")
     }
 }
 
-LogAction(action) {
-    try {
-        FileAppend(FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . " - " . action . "`n", logFile)
-    } catch as e {
-        MsgBox("Error writing to log file: " . e.Message)
-    }
+; Save settings to file
+SaveSettings() {
+    global reloadHotkey, exitHotkey, failsafeHotkey, currentMode
+    IniWrite(reloadHotkey, settingsFile, "Hotkeys", "ReloadKey")
+    IniWrite(exitHotkey, settingsFile, "Hotkeys", "ExitKey")
+    IniWrite(failsafeHotkey, settingsFile, "Hotkeys", "FailsafeKey")
+    IniWrite(currentMode, settingsFile, "Settings", "Theme")
 }
 
-ResizeRobloxWindows() {
-    global windows
-    for hwnd in windows {
-        try {
-            WinActivate("ahk_id " hwnd)
-            WinMove(,, 800, 600, "ahk_id " hwnd)
-            Sleep(100)
-        } catch as e {
-            LogAction("Error resizing window: " . e.Message)
-        }
-    }
-    UpdateStatus("Roblox windows resized to 800x600")
-    LogAction("Resized Roblox windows to 800x600")
-}
-
-DetectRobloxWindows(*) {
-    global windows
+; Detect Roblox windows across all monitors
+DetectRobloxWindows() {
+    global windows, statusText
     windows := []
     DetectHiddenWindows(true)
     windowsList := WinGetList("ahk_exe RobloxPlayerBeta.exe")
     for hwnd in windowsList {
-        if WinGetStyle("ahk_id " hwnd) & 0x10000000
+        if WinGetStyle("ahk_id " hwnd) & 0x10000000  ; WS_VISIBLE
+        {
             windows.Push(hwnd)
+        }
     }
     DetectHiddenWindows(false)
     if (windows.Length = 0) {
         UpdateStatus("No Roblox windows detected.")
-        LogAction("No Roblox windows detected")
     } else {
-        UpdateStatus("Found " windows.Length " Roblox windows.")
-        LogAction("Detected " windows.Length " Roblox windows")
-        ResizeRobloxWindows()
+        UpdateStatus("Found " windows.Length " Roblox windows across all monitors.")
     }
 }
 
-RunMacro(*) {
-    global isRunning, windows, enableAFKRoom, enableGiftClaiming, getIntoAFKRoom, MyGui, loopCount, currentLoopProgress
+; Run the macro
+RunMacro() {
+    global isRunning, windows, MyGui
     if (windows.Length = 0) {
         UpdateStatus("No Roblox windows detected. Please detect windows first.")
-        LogAction("Attempted to run macro with no windows detected")
         return
     }
-
+    
     isRunning := true
     UpdateStatus("Running...")
-    LogAction("Started macro")
-
-    MyGui.Minimize()
-
-    SetTimer(UpdateProgressDisplay, 1000)
-
+    
+    ; Minimize the GUI when the macro starts
+    WinMinimize("ahk_id " . MyGui.Hwnd)
+    
     while isRunning {
-        loopCount++
-        currentLoopProgress := 0
-
-        if (enableAFKRoom && getIntoAFKRoom) {
-            PerformGettingIntoAFKRoom()
-            currentLoopProgress := 25
-
-            PerformAFK()
-            currentLoopProgress := 50
-        }
-
+        PerformGettingIntoAFKRoom()
+        PerformAFK()
         KeepActive()
-        currentLoopProgress := 75
-
-        if enableGiftClaiming {
-            PerformClaimingGifts()
-        }
-
-        currentLoopProgress := 100
-        LogAction("Completed loop " . loopCount)
-
-        Sleep(1000)
+        PerformClaimingGifts()
+        Sleep(100)
     }
-
-    SetTimer(UpdateProgressDisplay, 0)
 }
 
-UpdateProgressDisplay() {
-    global loopCount, currentLoopProgress
-    SetTimer(UpdateProgressDisplay, 0)
-    progressText := "Loops: " . loopCount . " | Current Loop Progress: " . currentLoopProgress . "%"
-    ToolTip(progressText, A_ScreenWidth - 300, A_ScreenHeight - 30)
-    SetTimer(UpdateProgressDisplay, 1000)
-}
-
-SpinAndClick(x, y) {
-    MouseMove(x, y)
-    Sleep(100)
-
-    radius := 5
-    steps := 10
-    Loop steps {
-        angle := (A_Index - 1) * (2 * 3.14159 / steps)
-        newX := x + radius * Cos(angle)
-        newY := y + radius * Sin(angle)
-        MouseMove(newX, newY)
-        Sleep(10)
-    }
-
-    Click()
-    Sleep(100)
-}
-
+; Perform the "Getting into AFK Room" activity
 PerformGettingIntoAFKRoom() {
     global windows
     for hwnd in windows {
-        if !WinExist("ahk_id " hwnd) {
-            continue
-        }
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(366, 93)
+        MouseMove(1636, 427)
+        Click()
         Send("{Space down}")
         Send("{a down}")
         Send("{Space up}")
@@ -195,7 +94,7 @@ PerformGettingIntoAFKRoom() {
         Sleep(100)
         Send("{Shift}")
         Send("{A down}")
-        Sleep(1500)
+        Sleep(2000)
         Send("{A up}")
         Sleep(100)
         Send("{s down}")
@@ -203,13 +102,25 @@ PerformGettingIntoAFKRoom() {
         Send("{s up}")
         Sleep(100)
         Send("{a down}")
-        Sleep(6500)
+        Sleep(6000)
         Send("{a up}")
         Sleep(100)
         Send("{Shift}")
         Send("{s down}")
         Sleep(1000)
         Send("{s up}")
+        Sleep(100)
+        Send("{w down}")
+        Sleep(500)
+        Send("{w up}")
+        Sleep(100)
+        Send("{S down}")
+        Sleep(500)
+        Send("{S up}") 
+        Sleep(100)
+        Send("{w down}")
+        Sleep(500)
+        Send("{w up}")
         Sleep(100)
         Send("{w down}")
         Sleep(500)
@@ -232,19 +143,16 @@ PerformGettingIntoAFKRoom() {
         Send("{s up}")
         Sleep(1000)
     }
-    LogAction("Performed getting into AFK room")
 }
 
+; Perform AFK behavior for the specified duration
 PerformAFK() {
-    global isRunning, windows, afkDuration
-    afkStartTime := A_TickCount
-    afkEndTime := afkStartTime + (afkDuration * 1000)
-
-    while isRunning && (A_TickCount < afkEndTime) {
+    global windows, afkDuration
+    startTime := A_TickCount
+    endTime := startTime + (afkDuration * 1000)  ; Convert seconds to milliseconds
+    
+    while (A_TickCount < endTime) {
         for hwnd in windows {
-            if !WinExist("ahk_id " hwnd) {
-                continue
-            }
             WinActivate("ahk_id " hwnd)
             Send("{w down}")
             Sleep(100)
@@ -254,114 +162,213 @@ PerformAFK() {
             Sleep(100)
             Send("{s up}")
         }
-        Sleep(1000)
+        Sleep(1000)  ; Wait 1 second before the next movement
     }
-    LogAction("Performed AFK behavior")
 }
 
+; Perform the "Claiming Gifts" activity
 PerformClaimingGifts() {
     global windows
     for hwnd in windows {
-        if !WinExist("ahk_id " hwnd) {
-            continue
-        }
         WinActivate("ahk_id " hwnd)
         Sleep(500)
-        SpinAndClick(366, 93)
+        MouseMove(1636, 427)
+        Click(2)
         Sleep(1000)
-        SpinAndClick(213, 458)
+        MouseMove(949, 825)
+        Click(2)
         Sleep(500)
-        SpinAndClick(213, 450)
+        MouseMove(950, 808)
+        Click(2)
         Sleep(500)
-        SpinAndClick(213, 458)
+        MouseMove(949, 825)
+        Click(2)
+        Sleep(15000)
+        mousePositions := [[212, 930], [654, 447], [849, 447], [1052, 447], [1248, 447],
+        [654, 620], [849, 620], [1052, 620], [1248, 620],
+        [654, 807], [849, 807], [1052, 807], [1248, 807], [1331, 234]]
+        for pos in mousePositions {
+            MouseMove(pos[1], pos[2])
+            Click()
+            Sleep(500)
+        }
         Sleep(1000)
     }
-    LogAction("Performed claiming gifts")
 }
 
+; Keep the application active
 KeepActive() {
     global windows
-    for hwnd in windows {
-        if WinExist("ahk_id " hwnd) {
+    startTime := A_TickCount
+    while (A_TickCount - startTime < 10 * 1000) {
+        for hwnd in windows {
             WinActivate("ahk_id " hwnd)
-            Sleep(100)
+            Send("{w}")
         }
+        Sleep(1000)
     }
 }
 
-CreateMainGUI() {
-    global MyGui, TabGui, enableAFKRoom, enableGiftClaiming, getIntoAFKRoom, reloadHotkey, exitHotkey
-
-    MyGui := Gui(, "Roblox Macro Manager")
-    MyGui.BackColor := "404040"
-    MyGui.MarginX := 10
-    MyGui.MarginY := 10
-
-    TabGui := MyGui.Add("Tab3", "w380 h350", ["General", "Settings"])
-
-    TabGui.UseTab(1)
-    AddWhiteText("Enable AFK Room Activity:")
-    MyGui.Add("CheckBox", "vEnableAFKRoom Checked" . (enableAFKRoom ? 1 : 0) . " c000000", "")
-    AddWhiteText("Get Into AFK Room:")
-    MyGui.Add("CheckBox", "vGetIntoAFKRoom Checked" . (getIntoAFKRoom ? 1 : 0) . " c000000", "")
-    AddWhiteText("Enable Gift Claiming Activity:")
-    MyGui.Add("CheckBox", "vEnableGiftClaiming Checked" . (enableGiftClaiming ? 1 : 0) . " c000000", "")
-
-    MyGui.Add("Button", "w100 y+20", "Run Macro").OnEvent("Click", (*) => RunMacro())
-    MyGui.Add("Button", "w100 x+10", "Stop Macro").OnEvent("Click", (*) => StopMacro())
-    MyGui.Add("Button", "w100 x10 y+10", "Detect Windows").OnEvent("Click", (*) => DetectRobloxWindows())
-
-    AddWhiteText("Status:", "y+20")
-    MyGui.Add("Text", "vStatusText w360 cWhite", "Idle")
-    AddWhiteText("Detailed Status:", "y+10")
-    MyGui.Add("Edit", "vDetailedStatusText w360 h100 ReadOnly cWhite Background404040")
-
-    TabGui.UseTab(2)
-    AddWhiteText("Hotkey to reload script:")
-    MyGui.Add("Edit", "w100 vReloadEdit cBlack", reloadHotkey)
-    AddWhiteText("Hotkey to exit script:", "y+10")
-    MyGui.Add("Edit", "w100 vExitEdit cBlack", exitHotkey)
-    MyGui.Add("Button", "w100 y+20", "Save Settings").OnEvent("Click", (*) => SaveAppSettings())
-    MyGui.Add("Button", "w100 x+10", "Load Settings").OnEvent("Click", (*) => LoadSettings())
-
-    TabGui.UseTab()
-
-    MyGui.OnEvent("Close", (*) => ExitApp())
-    MyGui.Show("w400 h400")
+; Reload the script
+ReloadScript(*) {
+    Reload()
 }
 
-AddWhiteText(text, options := "") {
-    MyGui.Add("Text", "cWhite " . options, text)
+; Exit the script
+ExitScript(*) {
+    ExitApp()
 }
 
-UpdateStatus(status) {
-    global MyGui
-    if IsObject(MyGui) {
-        MyGui["StatusText"].Value := status
-        MyGui["DetailedStatusText"].Value .= FormatTime(, "HH:mm:ss") . " - " . status . "`n"
-        MyGui["DetailedStatusText"].Opt("+Redraw")
-    }
-}
-
-UpdateGUIControls() {
-    global MyGui, enableAFKRoom, enableGiftClaiming, getIntoAFKRoom, reloadHotkey, exitHotkey
-    MyGui["EnableAFKRoom"].Value := enableAFKRoom
-    MyGui["EnableGiftClaiming"].Value := enableGiftClaiming
-    MyGui["GetIntoAFKRoom"].Value := getIntoAFKRoom
-    MyGui["ReloadEdit"].Value := reloadHotkey
-    MyGui["ExitEdit"].Value := exitHotkey
-}
-
-StopMacro(*) {
+; Failsafe stop
+FailsafeStop(*) {
     global isRunning
     isRunning := false
-    UpdateStatus("Macro stopped.")
-    LogAction("Macro stopped")
+    UpdateStatus("Stopped (Failsafe)")
 }
 
-LoadSettings()
-CreateMainGUI()
+; Update status in the GUI
+UpdateStatus(status) {
+    global statusText
+    statusText.Value := "Status: " status
+}
 
-HotIfWinActive("A")
-Hotkey(reloadHotkey, (*) => LoadSettings())
-Hotkey(exitHotkey, (*) => StopMacro())
+; Style the GUI based on the current theme
+StyleGUI(guiObj) {
+    global currentMode, reloadEdit, exitEdit, failsafeEdit, titleBar, minimizeButton, closeButton
+    
+    if (currentMode = "Dark") {
+        guiObj.BackColor := "333333"
+        guiObj.SetFont("cWhite")
+        reloadEdit.Opt("+Background444444 cWhite")
+        exitEdit.Opt("+Background444444 cWhite")
+        failsafeEdit.Opt("+Background444444 cWhite")
+        titleBar.SetFont("cWhite")
+        minimizeButton.SetFont("cWhite")
+        closeButton.SetFont("cWhite")
+    } else {
+        guiObj.BackColor := "FFFFFF"
+        guiObj.SetFont("cBlack")
+        reloadEdit.Opt("+Background444444 cBlack")
+        exitEdit.Opt("+Background444444 cBlack")
+        failsafeEdit.Opt("+Background444444 cBlack")
+        titleBar.SetFont("cBlack")
+        minimizeButton.SetFont("cBlack")
+        closeButton.SetFont("cBlack")
+    }
+
+    for ctrl in [reloadEdit, exitEdit, failsafeEdit] {
+        ctrl.Opt("+Background444444")
+        ctrl.SetFont("c" . (currentMode = "Dark" ? "White" : "Black"))
+    }
+}
+
+; Toggle Dark/Light mode
+ToggleTheme(*) {
+    global currentMode
+    currentMode := (currentMode = "Dark") ? "Light" : "Dark"
+    SaveSettings()
+    StyleGUI(MyGui)
+}
+
+; GUI Setup
+MyGui := Gui("+Resize +MinSize320x520")  ; Allow resizing with a minimum size
+
+; Add a custom title bar
+titleBar := MyGui.Add("Text", "x0 y0 w340 h30 +BackgroundTrans", "Roblox Macro")
+titleBar.SetFont("s12 Bold", "Arial")
+titleBar.OnEvent("Click", (*) => SendInput("{LButton down}{LButton up}"))
+
+; Add minimize and close buttons
+minimizeButton := MyGui.Add("Text", "x300 y5 w15 h15", "—")
+minimizeButton.SetFont("s12 Bold", "Arial")
+minimizeButton.OnEvent("Click", (*) => WinMinimize("ahk_id " . MyGui.Hwnd))
+
+closeButton := MyGui.Add("Text", "x320 y5 w15 h15", "×")
+closeButton.SetFont("s12 Bold", "Arial")
+closeButton.OnEvent("Click", (*) => ExitScript())
+
+TabGui := MyGui.Add("Tab3", "x0 y30 w340 h490", ["Hotkeys", "Recommendations", "Accessibility"])
+
+; Hotkeys Tab
+TabGui.UseTab(1)
+
+MyGui.Add("Text", "x10 y+20 w100", "Reload Hotkey:")
+reloadEdit := MyGui.Add("Edit", "x+5 w200 h30 vReloadHotkey", reloadHotkey)
+
+MyGui.Add("Text", "x10 y+10 w100", "Exit Hotkey:")
+exitEdit := MyGui.Add("Edit", "x+5 w200 h30 vExitHotkey", exitHotkey)
+
+MyGui.Add("Text", "x10 y+10 w100", "Failsafe Hotkey:")
+failsafeEdit := MyGui.Add("Edit", "x+5 w200 h30 vFailsafeHotkey", failsafeHotkey)
+
+detectButton := MyGui.Add("Button", "x10 y+20 w300", "Detect Roblox Windows")
+detectButton.OnEvent("Click", (*) => DetectRobloxWindows())
+
+runButton := MyGui.Add("Button", "x10 y+10 w300", "Run Macro")
+runButton.OnEvent("Click", (*) => RunMacro())
+
+statusText := MyGui.Add("Text", "x10 y+10 vStatus w300", "Status: Waiting...")
+
+saveSettingsButton := MyGui.Add("Button", "x10 y+20 w300", "Save Settings")
+saveSettingsButton.OnEvent("Click", (*) => SaveSettingsGUI())
+
+; Recommendations Tab
+TabGui.UseTab(2)
+recommendationLink := MyGui.Add("Link", "x10 y+20 w300", "<a href=`"https://forms.gle/your-google-form-id`">Submit Feedback or Suggestions</a>")
+
+; Accessibility Tab
+TabGui.UseTab(3)
+MyGui.Add("Text", "x10 y+20 Section", "Accessibility Settings")
+darkModeToggle := MyGui.Add("Checkbox", "x10 y+10 w300 vDarkMode", "Dark Mode")
+darkModeToggle.OnEvent("Click", ToggleTheme)
+darkModeToggle.Value := (currentMode = "Dark")
+
+; Show the GUI
+MyGui.Show("w340 h520")
+
+; Make the window movable
+OnMessage(0x201, WM_LBUTTONDOWN)
+WM_LBUTTONDOWN(wParam, lParam, msg, hwnd) {
+    global titleBar
+    if (hwnd == MyGui.Hwnd && GetCurrentControl() == titleBar) {
+        PostMessage(0xA1, 2)  ; WM_NCLBUTTONDOWN
+    }
+}
+
+; Function to get the control under the cursor
+GetCurrentControl() {
+    mouseX := 0
+    mouseY := 0
+    MouseGetPos(&mouseX, &mouseY, , &control, 2)
+    return control
+}
+
+; Load settings
+LoadSettings()
+
+; Set up hotkeys
+SetupHotkeys()
+
+; Apply initial styling
+StyleGUI(MyGui)
+; Setup hotkeys
+SetupHotkeys() {
+    global reloadHotkey, exitHotkey, failsafeHotkey
+    Hotkey(reloadHotkey, ReloadScript)
+    Hotkey(exitHotkey, ExitScript)
+    Hotkey(failsafeHotkey, FailsafeStop)
+}
+
+; SaveSettingsGUI function
+SaveSettingsGUI() {
+    global reloadHotkey, exitHotkey, failsafeHotkey
+    reloadHotkey := reloadEdit.Value
+    exitHotkey := exitEdit.Value
+    failsafeHotkey := failsafeEdit.Value
+    SaveSettings()
+    SetupHotkeys()
+    UpdateStatus("Settings saved successfully.")
+}
+
+; Keep the script running
+OnMessage(0x112, (*) => 0)  ; Prevent the script from exiting when the GUI is closed
