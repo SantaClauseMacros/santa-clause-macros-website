@@ -145,13 +145,13 @@ PerformAction() {
         LogMessage("Performing main action sequence")
         ShowToolTip("Performing main action sequence...", 2000)
         
-        SpinAndClick(1498, 629)
+        SpinAndClick(1498, 660)
         Sleep(1000)
-        SpinAndClick(1498, 629)
+        SpinAndClick(1498, 660)
         Sleep(1000)
-        SpinAndClick(1498, 629)
+        SpinAndClick(1498, 660)
         Sleep(1000)
-        SpinAndClick(1498, 629)
+        SpinAndClick(1498, 660)
         Sleep(1000)
 
         SpinAndClick(1381, 724)
