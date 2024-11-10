@@ -14,8 +14,14 @@
   force = true
 
 [[redirects]]
-  from = "/Macro*3*Coming*Soon.ahk"
+  from = "/Macro*3*Game*6*Night*4*Hell*Mode.ahk"
   to = "/Macro3.ahk"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/Macro*4*Coming*Soon.ahk"
+  to = "/Macro4.ahk"
   status = 200
   force = true
 
