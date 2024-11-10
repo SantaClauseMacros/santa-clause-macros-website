@@ -1,3 +1,4 @@
 /Macro*1*AFK*Room-Claim*Gifts.ahk /Macro1.ahk 200!
 /Macro*2*Game*4*Night*1*Hell*Mode.ahk /Macro2.ahk 200!
-/Macro*3*Coming*Soon.ahk /Macro3.ahk 200!
+/Macro*3*Game*6*Night*4*Hell*Mode.ahk /Macro3.ahk 200!
+/Macro*4*Coming*Soon.ahk /Macro4.ahk 200!
