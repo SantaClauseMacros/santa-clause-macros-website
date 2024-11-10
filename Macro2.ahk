@@ -47,7 +47,6 @@ PerformAction() {
     try {
         EnsureRobloxFocus()
         
-        ShowToolTip("Starting initial sequence...", 2000)
         ShowToolTip("Starting main action sequence...", 2000)
         Sleep(30000)
 
