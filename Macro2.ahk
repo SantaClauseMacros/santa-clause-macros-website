@@ -1,30 +1,18 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-; Macro 2: Game 4 Night 1 Hell mode
-; This script automates actions for a specific game scenario
+; Macro 2: Game 4 Night 1 Hell Mode
+; Description: Automates specific game actions with spin clicking
+; Controls: F1 (Start), F4 (Stop), F5 (Reload), F6 (Exit)
 
 ; Global variables
 global performActionCounter := 0
 global isRunning := false
-global logFile := A_ScriptDir . "\Macro 2_Game 4_Night 1_Hell mode_log.txt"
-
-; Create log file and write initial message
-FileAppend("Macro 2: Game 4 Night 1 Hell mode - Log file created at " . A_Now . "`n", logFile)
-
-; Show message box with log file location
-MsgBox("Macro 2: Game 4 Night 1 Hell mode`nLog file is located at:`n" . logFile)
-
-; Logging function
-LogMessage(message) {
-    FileAppend(A_Now . " - " . message . "`n", logFile)
-}
 
 ; Enhanced tooltip function
 ShowToolTip(message, duration := 3000) {
     ToolTip(message)
     SetTimer(() => ToolTip(), -duration)
-    LogMessage("Tooltip: " . message)
 }
 
 ; Window focus check function
@@ -33,11 +21,9 @@ EnsureRobloxFocus() {
         WinActivate("ahk_exe RobloxPlayerBeta.exe")
         WinWaitActive("ahk_exe RobloxPlayerBeta.exe", , 2)
         if (!WinActive("ahk_exe RobloxPlayerBeta.exe")) {
-            LogMessage("Failed to focus Roblox window")
             throw Error("Failed to focus Roblox window")
         }
     }
-    LogMessage("Roblox window focused")
 }
 
 ; Function to perform a faster spinning motion and click
@@ -51,89 +37,17 @@ SpinAndClick(x, y, radius := 10, duration := 500) {
         Sleep(5)
     }
     Click(x, y)
-    LogMessage("Spun and clicked at coordinates: " . x . ", " . y)
 }
 
-; Define the complex action to perform
+; Define the sequence of actions
 PerformAction() {
     global performActionCounter
     performActionCounter++
-    LogMessage("Starting PerformAction() - Execution #" . performActionCounter)
     
     try {
         EnsureRobloxFocus()
         
         ShowToolTip("Starting initial sequence...", 2000)
-        Send("{Space down}")
-        Send("{a down}")
-        Send("{Space up}")
-        Send("{a up}")
-        Sleep(100)
-        Send("{Tab}")
-        Sleep(100)
-        Send("{Shift}")
-        Send("{A down}")
-        Sleep(3000)
-        Send("{A up}")
-        Sleep(100)
-        Send("{s down}")
-        Sleep(500)
-        Send("{s up}")
-        Sleep(100)
-        Send("{a down}")
-        Sleep(6000)
-        Send("{a up}")
-        Sleep(100)
-        Send("{Shift}")
-        Send("{s down}")
-        Sleep(1000)
-        Send("{s up}")
-        Sleep(100)
-        Send("{w down}")
-        Sleep(500)
-        Send("{w up}")
-        Sleep(100)
-        Send("{S down}")
-        Sleep(500)
-        Send("{S up}")
-        Sleep(100)
-        Send("{w down}")
-        Sleep(500)
-        Send("{w up}")
-        Sleep(100)
-        Send("{w down}")
-        Sleep(500)
-        Send("{w up}")
-        Sleep(100)
-        Send("{S down}")
-        Sleep(500)
-        Send("{S up}")
-        Sleep(100)
-        Send("{d down}")
-        Sleep(2300)
-        Send("{d up}")
-        Sleep(100)
-        Send("{s down}")
-        Sleep(1975)
-        Send("{s up}")
-        Sleep(100)
-        Send("{w down}")
-        Sleep(250)
-        Send("{w up}")
-        Sleep(100)
-        Send("{s down}")
-        Sleep(300)
-        Send("{s up}")
-        Sleep(100)
-        Send("{w down}")
-        Sleep(250)
-        Send("{w up}")
-        Sleep(100)
-        Send("{s down}")
-        Sleep(300)
-        Send("{s up}")
-        
-        LogMessage("Initial sequence completed")
         ShowToolTip("Starting main action sequence...", 2000)
         Sleep(30000)
 
@@ -141,10 +55,7 @@ PerformAction() {
         Sleep(1000)
         SpinAndClick(1387, 337)
         Sleep(1000)
-
-        LogMessage("Performing main action sequence")
         ShowToolTip("Performing main action sequence...", 2000)
-        
         SpinAndClick(1498, 645)
         Sleep(1000)
         SpinAndClick(1498, 645)
@@ -205,7 +116,7 @@ PerformAction() {
         Send("{w up}")
         Sleep(250)
         SpinAndClick(1614, 818)
-	Sleep(250)
+	    Sleep(250)
         Loop 64 {
             Send("{e down}")
             Send("{e up}")
@@ -268,23 +179,39 @@ PerformAction() {
             Send("{e up}")
             Sleep(100)
         }
-        Sleep(67500)
+
+        ; Color detection and final click sequence
+        ShowToolTip("Searching for color match (1E1E1E)...", 2000)
+        startTime := A_TickCount
+        pixelFound := false
         
+        while (A_TickCount - startTime < 100000) { ; 100 seconds
+            if (PixelSearch(&foundX, &foundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "0x1E1E1E")) {
+                pixelFound := true
+                ShowToolTip("Color match found! Executing click.", 1000)
+                SpinAndClick(823, 838)
+                break
+            }
+            Sleep(100)
+        }
+
+        if (!pixelFound) {
+            ShowToolTip("Wait complete - executing click", 1000)
+            SpinAndClick(823, 838)
+        }
+
         ; Reset character sequence
-        Send("{Escape}")  ; Press Escape key
-        Sleep(2000)       ; Wait for 2 seconds
-        Send("r")         ; Press R key
-        Sleep(2000)       ; Short sleep
-        Send("{Enter}")   ; Press Enter key
+        Send("{Escape}")
+        Sleep(2000)
+        Send("r")
+        Sleep(2000)
+        Send("{Enter}")
         Sleep(5000)
-        LogMessage("Action sequence completed")
         ShowToolTip("Action sequence completed", 2000)
+        
     } catch as err {
-        LogMessage("Error in PerformAction(): " . err.Message)
         ShowToolTip("Error: " . err.Message, 5000)
     }
-    
-    LogMessage("Exiting PerformAction() - Execution #" . performActionCounter)
 }
 
 ; Main loop
@@ -293,59 +220,46 @@ MainLoop() {
     counter := 0
     while (isRunning) {
         counter++
-        LogMessage("Starting MainLoop iteration " . counter)
         ShowToolTip("Starting iteration " . counter, 2000)
         PerformAction()
-        LogMessage("MainLoop iteration " . counter . " finished")
         ShowToolTip("Action complete. Iteration " . counter . " finished. Repeating...", 3000)
-        Sleep(1000)  ; Increased sleep time to ensure we can see the tooltip
+        Sleep(1000)
     }
 }
 
-; Start the macro
-F1::
+; Hotkeys
+F1:: ; Start macro
 {
     global isRunning
     if (!isRunning) {
         isRunning := true
-        LogMessage("Macro started")
-        MainLoop()  ; Call MainLoop directly
+        MainLoop()
         ShowToolTip("Macro started - Performing actions repeatedly", 3000)
     } else {
-        LogMessage("Attempt to start macro while already running")
         ShowToolTip("Macro is already running", 3000)
     }
 }
 
-; Stop the macro
-F4::
+F4:: ; Stop macro
 {
     global isRunning
     isRunning := false
-    LogMessage("Macro stopped")
     ShowToolTip("Macro stopped. Press F1 to start again.", 3000)
 }
 
-; Exit the script
-F6::
+F5:: ; Reload script
 {
-    LogMessage("Exiting script")
+    ShowToolTip("Reloading script...", 2000)
+    Sleep(1000)
+    Reload()
+}
+
+F6:: ; Exit script
+{
     ShowToolTip("Macro stopped. Exiting script...", 2000)
     Sleep(2000)
     ExitApp
 }
 
-; Reload the script
-F5::
-{
-    LogMessage("Attempting to reload script")
-    ShowToolTip("Reloading script...", 2000)
-    Sleep(1000)
-    Reload()
-    Sleep(1000)
-    LogMessage("Script could not be reloaded")
-    ShowToolTip("Script could not be reloaded. Please check for errors.", 5000)
-}
-
 ; Show initial tooltip
-ShowToolTip("Macro 2: Game 4 Night 1 Hell mode`nReady. F1: Start, F4: Stop, F5: Reload, F6: Exit", 5000)
+ShowToolTip("Macro 2: Game 4 Night 1 Hell Mode`nReady. F1: Start, F4: Stop, F5: Reload, F6: Exit", 5000)
